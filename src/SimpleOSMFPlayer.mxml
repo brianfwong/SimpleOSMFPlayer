@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<mx:Application
+	xmlns:fx="http://ns.adobe.com/mxml/2009"
+	xmlns:mx="library://ns.adobe.com/flex/mx"
+	xmlns:s="library://ns.adobe.com/flex/spark"
+	applicationComplete="init()" xmlns:local="*">
+	
+	<fx:Script>
+
+		<![CDATA[
+			import flash.net.*;
+			
+			import mx.core.IVisualElement;
+			import mx.core.UIComponent;
+			
+			import org.osmf.media.MediaPlayerSprite;
+			protected function init():void{
+				
+				
+				var player:SimpleOSMFPlayer = new SimpleOSMFPlayer();
+				var uic:UIComponent = new UIComponent();
+				uic.addChild(player);
+				this.addChild(uic)
+			}
+		]]>
+	</fx:Script>
+</mx:Application>
+
+

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <actionScriptProperties analytics="false" mainApplicationPath="SimpleOSMFPlayer.mxml" projectUUID="7fef3962-4745-451a-90ef-4f5a9c0fef20" version="11">
-  <compiler additionalCompilerArguments="-locale en_US -swf-version 17" autoRSLOrdering="true" copyDependentFiles="true" flexSDK="Flex 4.13" fteInMXComponents="false" generateAccessible="true" htmlExpressInstall="true" htmlGenerate="true" htmlHistoryManagement="true" htmlPlayerVersionCheck="true" includeNetmonSwc="false" outputFolderPath="bin-debug" removeUnusedRSL="true" sourceFolderPath="src" strict="true" targetPlayerVersion="15.0.0" useApolloConfig="false" useDebugRSLSwfs="false" useFlashSDK="false" verifyDigests="true" warn="true">
+  <compiler additionalCompilerArguments="-locale en_US -swf-version 17" autoRSLOrdering="false" copyDependentFiles="true" flexSDK="Apache Flex 4.13Air.0 FP11.1 AIR14.0 en_US" fteInMXComponents="false" generateAccessible="true" htmlExpressInstall="true" htmlGenerate="true" htmlHistoryManagement="true" htmlPlayerVersionCheck="true" includeNetmonSwc="false" outputFolderPath="bin-debug" removeUnusedRSL="true" sourceFolderPath="src" strict="true" targetPlayerVersion="16.0.0" useApolloConfig="false" useDebugRSLSwfs="false" useFlashSDK="false" verifyDigests="true" warn="true">
     <compilerSourcePath/>
     <libraryPath defaultLinkType="1">
       <libraryPathEntry kind="1" linkType="1" path="${FLEXUNIT_LIB_LOCATION}/version4libs/Common"/>

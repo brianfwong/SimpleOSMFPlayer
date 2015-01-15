@@ -11,10 +11,8 @@ package
 	import flash.events.Event;
 	import flash.external.ExternalInterface;
 	import flash.system.Capabilities;
-	import flash.system.Security;
-	import flash.system.SecurityPanel;
+
 	
-	import mx.controls.Alert;
 
 	import flash.display.*;
 	import org.osmf.media.*;
@@ -31,13 +29,12 @@ package
 	import org.osmf.media.URLResource;
 	import org.osmf.layout.*;
 		
-	System.security.allowDomain("*");
 
 	
 	
 	//Sets the size of the SWF
 	
-	[SWF(width="1024", height="768", backgroundColor='#405050', frameRate="25")]
+	[SWF(width="640", height="480", backgroundColor='#405050', frameRate="25")]
 	public class SimpleOSMFPlayer extends Sprite
 	{
 		public var _container:MediaContainer;

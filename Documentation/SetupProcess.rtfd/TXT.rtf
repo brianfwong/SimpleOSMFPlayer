@@ -1,0 +1,278 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf210
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\margl1440\margr1440\vieww31540\viewh19340\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f0\fs24 \cf0 1. Create a merged Flex+AIR SDK, overwriting Flex with AIR.\
+The SDKs can be found here:\
+\
+Flex:\
+http://flex.apache.org/download-binaries.html\
+\
+AIR:\
+http://www.adobe.com/devnet/air/air-sdk-download.html\
+http://www.adobe.com/devnet/air/air-sdk-download-mac.html\
+\
+1a. Place this new SDK into Flash builder at:\
+/Applications/Adobe Flash Builder 4.7/sdks/[yournewSDK]\
+And set it as the SDK to use for Flash Builder.\
+\
+\
+2. Create a basic flex project, using a simple mxml setup like this one:\
+\
+\
+****************\
+<?xml version="1.0" encoding="utf-8"?>\
+\
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"\
+	   xmlns:s="library://ns.adobe.com/flex/spark"\
+	   xmlns:mx="library://ns.adobe.com/flex/mx"\
+	   applicationComplete="init()" \
+	   minWidth="955" minHeight="600" backgroundAlpha="0">\
+	\
+	<fx:Script>\
+\
+		<![CDATA[\
+			import flash.net.*;\
+			\
+			import mx.core.IVisualElement;\
+			import mx.core.UIComponent;\
+			import mx.controls.Alert;\
+\
+			\
+			import org.osmf.media.MediaPlayerSprite;\
+			protected function init():void\{\
+				\
+				var player:SimpleOSMFPlayer = new SimpleOSMFPlayer();\
+				var uic:UIComponent = new UIComponent();\
+				uic.addChild(player);\
+				this.addChild(uic)\
+			\}\
+		]]>\
+	</fx:Script>\
+</s:Application>\
+****************\
+\
+3. With these files in the libs:\
+OSMF.swc\
+MSAdaptiveStreamingPlugin-v1.0.12-osmf2.0.swc\
+MSAdaptiveStreamingPlugin-v1.0.12-osmf2.0.swf\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
+\cf0 {{\NeXTGraphic Screen Shot 2015-01-15 at 11.18.02 AM.png \width16200 \height19620
+}¬}\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0 \
+\
+4. in src you want a minimal action script:\
+4a. Play attention to these two lines:\
+\
+adaptiveStreamingPluginUrl = "http://localhost:8000/SimpleOSMFPlayer/bin-debug/MSAdaptiveStreamingPlugin-v1.0.12-osmf2.0.swf";\
+loadMediaSource("http://wams.edgesuite.net/media/SintelTrailer_MP4_from_WAME/sintel_trailer-1080p.ism/manifest")\
+\
+- Setting the plugin location and the stream location. Modify as needed, and make sure the files are there (I probably should not have places the swf file in bin-debug).\
+\
+\
+*****************\
+package\
+\{\
+	import com.microsoft.azure.media.AdaptiveStreamingPluginInfo;\
+	\
+	import flash.display.Sprite;\
+	\
+	import flash.system.Worker;\
+	import flash.system.WorkerDomain;\
+	import flash.system.WorkerState;\
+	\
+	import flash.events.Event;\
+	import flash.external.ExternalInterface;\
+	import flash.system.Capabilities;\
+\
+	\
+\
+	import flash.display.*;\
+	import org.osmf.media.*;\
+	import org.osmf.containers.MediaContainer;\
+	import org.osmf.events.MediaErrorEvent;\
+	import org.osmf.events.MediaFactoryEvent;\
+	import org.osmf.events.MediaPlayerStateChangeEvent;\
+	import org.osmf.layout.ScaleMode;\
+	import org.osmf.media.DefaultMediaFactory;\
+	import org.osmf.media.MediaElement;\
+	import org.osmf.media.MediaPlayerSprite;\
+	import org.osmf.media.MediaPlayerState;\
+	import org.osmf.media.MediaResourceBase;\
+	import org.osmf.media.URLResource;\
+	import org.osmf.layout.*;\
+		\
+\
+	\
+	\
+	//Sets the size of the SWF\
+	\
+	[SWF(width="640", height="480", backgroundColor='#405050', frameRate="25")]\
+	public class SimpleOSMFPlayer extends Sprite\
+	\{\
+		public var _container:MediaContainer;\
+		public var _mediaFactory:DefaultMediaFactory;\
+		private var _mediaPlayerSprite:MediaPlayerSprite;\
+		\
+		public function SimpleOSMFPlayer( )\
+		\{\
+			//stage.quality = StageQuality.HIGH;\
+\
+			initMediaPlayer();\
+//			var worker:Worker = WorkerDomain.current.createWorker(this.loaderInfo.bytes);\
+\
+		\}\
+		\
+		private function initMediaPlayer():void\
+		\{\
+			\
+			trace("OSMFSmooth: initMediaPlayer()");\
+			ExternalInterface.call("console.log", "OSMFSmooth: initMediaPlayer()");\
+			\
+			// Create the container (sprite) for managing display and layout\
+			_mediaPlayerSprite = new MediaPlayerSprite();\
+			_mediaPlayerSprite.addEventListener(MediaErrorEvent.MEDIA_ERROR, onPlayerFailed);\
+			_mediaPlayerSprite.addEventListener(MediaPlayerStateChangeEvent.MEDIA_PLAYER_STATE_CHANGE, onPlayerStateChange);\
+			\
+			trace("OSMFSmooth: addEventListener added");\
+			ExternalInterface.call("console.log", "addEventListener added");\
+			//Adds the container to the stage\
+			addChild(_mediaPlayerSprite);\
+			\
+			// Create a mediafactory instance\
+			_mediaFactory = new DefaultMediaFactory();\
+\
+			trace("OSMFSmooth: _mediaFactory: " + _mediaFactory);\
+			ExternalInterface.call("console.log", "_mediaFactory: " + _mediaFactory);\
+\
+			\
+			// Add the listeners for PLUGIN_LOADING\
+			_mediaFactory.addEventListener(MediaFactoryEvent.PLUGIN_LOAD,onPluginLoaded);\
+			_mediaFactory.addEventListener(MediaFactoryEvent.PLUGIN_LOAD_ERROR, onPluginLoadFailed );\
+			\
+			// Load the plugin class\
+			loadAdaptiveStreamingPlugin( );\
+			\
+		\}\
+		\
+		private function loadAdaptiveStreamingPlugin( ):void\
+		\{\
+			var pluginResource:MediaResourceBase;\
+			var adaptiveStreamingPluginUrl:String;\
+\
+			trace("OSMFSmooth: loadAdaptiveStreamingPlugin( )");\
+			ExternalInterface.call("console.log", "loadAdaptiveStreamingPlugin( )");\
+\
+			// Your dynamic plugin web server needs to host a valid crossdomain.xml file to allow loading plugins.\
+			\
+			adaptiveStreamingPluginUrl = "http://localhost:8000/SimpleOSMFPlayer/bin-debug/MSAdaptiveStreamingPlugin-v1.0.12-osmf2.0.swf";\
+			pluginResource = new URLResource(adaptiveStreamingPluginUrl);\
+			trace("OSMFSmooth: pluginResource: " + pluginResource);\
+			ExternalInterface.call("console.log", "pluginResource: " + pluginResource);\
+\
+			_mediaFactory.loadPlugin( pluginResource );\
+			\
+		\}\
+		\
+		private function onPluginLoaded( event:MediaFactoryEvent ):void\
+		\{\
+			// The plugin is loaded successfully.\
+			\
+			// Your web server needs to host a valid crossdomain.xml file to allow plugin to download Smooth Streaming files.\
+			trace("OSMFSmooth: Plugin LOADED");\
+			ExternalInterface.call("console.log", "Plugin LOADED");\
+\
+			loadMediaSource("http://wams.edgesuite.net/media/SintelTrailer_MP4_from_WAME/sintel_trailer-1080p.ism/manifest")\
+		\}\
+		\
+		private function onPluginLoadFailed( event:MediaFactoryEvent ):void\
+		\{\
+			// The plugin is failed to load ...\
+			trace("OSMFSmooth: Plugin LOAD FAILED");\
+			ExternalInterface.call("console.log", "Plugin LOAD FAILED");\
+		\}\
+		\
+		\
+		private function onPlayerStateChange(event:MediaPlayerStateChangeEvent) : void\
+		\{\
+			var state:String;\
+			\
+			state = event.state;\
+			\
+			switch (state)\
+			\{\
+				case MediaPlayerState.LOADING:\
+					\
+					// A new source is started to load.\
+					\
+					break;\
+				\
+				case MediaPlayerState.READY :\
+					// Add code to deal with Player Ready when it is hit the first load after a source is loaded.\
+					\
+					break;\
+				\
+				case MediaPlayerState.BUFFERING :\
+					\
+					break;\
+				\
+				case MediaPlayerState.PAUSED :\
+					break;\
+				// other states ...\
+			\}\
+		\}\
+		\
+		private function onPlayerFailed(event:MediaErrorEvent) : void\
+		\{\
+			// Media Player is failed .\
+		\}\
+		\
+		private function loadMediaSource(sourceURL : String):void\
+		\{\
+			// Take an URL of SmoothStreamingSource's manifest and add it to the page.\
+			trace("OSMFSmooth: loadMediaSource");\
+			ExternalInterface.call("console.log", "loadMediaSource");\
+\
+			var resource:URLResource= new URLResource( sourceURL );\
+			\
+			var element:MediaElement = _mediaFactory.createMediaElement( resource );\
+			_mediaPlayerSprite.scaleMode = ScaleMode.LETTERBOX;\
+			_mediaPlayerSprite.width = stage.stageWidth;\
+			_mediaPlayerSprite.height = stage.stageHeight;\
+			// Add the media element\
+			_mediaPlayerSprite.media = element;\
+			trace("OSMFSmooth: loadMediaSource LOADED");\
+			ExternalInterface.call("console.log", "loadMediaSource LOADED");\
+		\}\
+		\
+	\}\
+\}\
+********************\
+\
+5. In Flash Builder include this action script as one of the \'93Flex Applications\'94 for the project.\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
+\cf0 {{\NeXTGraphic Screen Shot 2015-01-15 at 3.05.41 PM.png \width12680 \height7320
+}¬}\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0 \
+6. Ensure the Flex Compiler is using the merged SDK, and a Flash Player consistent with your SDK version (16 for the SDK I used)\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
+\cf0 {{\NeXTGraphic Screen Shot 2015-01-15 at 11.17.37 AM.png \width16040 \height13580
+}¬}\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0 \
+\
+7. Ensure the Run/Debug settings are set to localhost:8000/path and not /Users/name/path.\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
+\cf0 {{\NeXTGraphic Screen Shot 2015-01-15 at 11.18.19 AM.png \width18280 \height13700
+}¬}\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0 \
+8. Try and debug run it.\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
+\cf0 {{\NeXTGraphic Screen Shot 2015-01-15 at 11.07.01 AM_50.png \width16800 \height10500
+}¬}}
